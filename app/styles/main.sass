@@ -1,0 +1,25 @@
+$icon-font-path: "/bower_components/bootstrap-sass-official/assets/fonts/"
+
+@import bootstrap-sass-official/assets/stylesheets/bootstrap
+
+html, body
+    min-height: 100%
+
+#app
+    min-height: 100%
+    position: relative
+
+.video-wrapper
+    height: 0
+    position: relative
+    padding-bottom: 67.5%
+
+    &.widescreen
+        padding-bottom: 56.34%
+
+    embed, iframe, object, video
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
