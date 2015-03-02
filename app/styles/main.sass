@@ -3,11 +3,38 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/assets/fonts/"
 @import bootstrap-sass-official/assets/stylesheets/bootstrap
 
 html, body
+    font-family: 'Open Sans', Helvetica, sans-serif
     min-height: 100%
+    overflow: hidden
 
 #app
     min-height: 100%
     position: relative
+    form input
+        min-width: 30vw
+    form button
+        background-color: rgba(255,255,255, .3)
+    form input,
+    form button
+        background: rgba(0,0,0, .5)
+        border-radius: 2px
+        border: 1px solid #fafafa
+        color: #fafafa
+.logo
+    position: absolute
+    top: -1em
+    right: 10px
+    z-index: 10
+    color: rgba(255,255,255,.7)
+    text-align: right
+    min-width: 50vw
+    min-height: 100px
+
+    font-style: italic
+    font-weight: 200
+    h1
+        font-size: 60px
+        font-size: 12vw
 
 .video-wrapper
     height: 0

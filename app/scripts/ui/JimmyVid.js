@@ -18,7 +18,7 @@ var JimmyVid = React.createClass({
     var player = document.getElementById('ytp');
     console.log('[VIDEO] playVideo');
     // player.playVideo();
-    onYouTubePlayerReady();
+    onYouTubePlayerReady(this.props.source);
   },
   stop: function () {
     var player = document.getElementById('ytp');
@@ -50,12 +50,36 @@ var JimmyVid = React.createClass({
   }
 });
 
-function onYouTubePlayerReady(playerid){
-  var player = document.getElementById('ytp');
-  console.log('[onYouTubePlayerReady] playVideo');
+var player;
+function onYouTubePlayerReady(playerid) {
+  // var player = document.getElementById('ytp');
+  player = new YT.Player('ytp', {
+    videoId: playerid,
+    events: {
+      'onReady': onPlayerReady
+    }
+  });
+  console.log('[onYouTubePlayerReady] new YT.Player -- 1');
   console.log(player);
-  player.playVideo();
+
 }
+
+function onPlayerReady() {
+  console.log('[onPlayerReady] fired. trying playVideo() -- 2');
+  player.playVideo();
+  player.mute();
+  var playerElement = document.getElementById('ytp');
+  var requestFullScreen = playerElement.requestFullScreen || playerElement.mozRequestFullScreen || playerElement.webkitRequestFullScreen;
+  if (requestFullScreen) {
+    requestFullScreen.bind(playerElement)();
+  }
+}
+
+// function onPlayerStateChange(event) {
+//   if (event.data == YT.PlayerState.PAUSED) {
+
+//   }
+// }
 
 
 module.exports = JimmyVid;

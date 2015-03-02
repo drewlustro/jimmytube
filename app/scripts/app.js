@@ -64,19 +64,23 @@ var JimmyVidApp = React.createClass({
         zIndex: 10,
         top: '10px',
         left: '10px'
+
     };
+    var inputClass = 'form-control input-sm';
+    var buttonClass = 'btn btn-default';
+    var logoClass = 'logo';
     return (
       <div>
         <JimmyVid source={this.state.youtubeId} ready={this.state.ready} />
         <SoundcloudPlayer url={this.state.soundcloudUrl} ready={this.state.ready} />
         <form onSubmit={this.togglePlay} style={formStyle}>
-          <input onChange={this.onYoutubeChange} value={this.state.youtubeUrl} placeholder="YouTube URL" />
+          <input className={inputClass} onChange={this.onYoutubeChange} value={this.state.youtubeUrl} placeholder="YouTube URL" />
           <br />
-          <input onChange={this.onSoundcloudChange} value={this.state.soundcloudUrl} placeholder="SoundCloud URL" />
+          <input className={inputClass} onChange={this.onSoundcloudChange} value={this.state.soundcloudUrl} placeholder="SoundCloud URL" />
           <br />
-          <button>Play</button>
+          <button className={buttonClass}>&#9654; Play Together</button>
         </form>
-        <Timer />
+        <aside className={logoClass}><h1>jimmytube</h1></aside>
       </div>
     );
   }
