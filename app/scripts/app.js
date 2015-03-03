@@ -1,61 +1,51 @@
 /** @jsx React.DOM */
 
-var SOUNDCLOUD_CLIENT_ID = "139b561ee195632ce8dc48df97e087a3";
-var SOUNDCLOUD_SECRET = "52d05c352c5321cff73b781085c6613f";
-
 var React = window.React = require('react'),
-    Timer = require("./ui/Timer"),
-    JimmyVid = require('./ui/JimmyVid'),
+    VideoPlayer = require('./ui/VideoPlayer'),
     SoundcloudPlayer = require('./ui/SoundcloudPlayer'),
     mountNode = document.getElementById("app");
 
-var JimmyVidChrome = React.createClass({
-  render: function() {
-    var createItem = function(itemText) {
-      return <li>{itemText}</li>;
-    };
-    return <ul>{this.props.items.map(createItem)}</ul>;
-  }
-});
-var JimmyVidApp = React.createClass({
+var JimmytubeApp = React.createClass({
   getInitialState: function() {
     return { ready: false,
              youtubeUrl: undefined,
-             youtubeId: undefined,
-             soundcloudUrl: undefined };
+             videoControl: undefined,
+             soundcloudUrl: 'https://soundcloud.com/itsmeelan/cassie-me-and-u-elan-remix',
+             soundcloudControl: undefined };
   },
   onYoutubeChange: function(e) {
     var youtubeUrl = e.target.value;
-
-    // http://stackoverflow.com/questions/3452546/javascript-regex-how-to-get-youtube-video-id-from-url
-    function parseYoutube(url) {
-        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
-        var match = url.match(regExp);
-        if (match && match[7].length == 11) {
-            return match[7];
-        }
-        return null;
-    }
-
-    var videoId = parseYoutube(youtubeUrl);
-    if (videoId !== undefined) {
-        this.setState({youtubeId: videoId,
-                       youtubeUrl: youtubeUrl});
+    if (youtubeUrl !== undefined) {
+        this.setState({youtubeUrl: youtubeUrl});
     }
   },
   onSoundcloudChange: function(e) {
     var soundcloudUrl = e.target.value;
-
     if (soundcloudUrl !== undefined) {
         this.setState({soundcloudUrl: soundcloudUrl});
     }
   },
   togglePlay: function(e) {
     e.preventDefault();
-    if (true || this.state.youtubeUrl && this.state.soundcloudUrl) {
+    if (this.state.youtubeUrl && this.state.soundcloudUrl) {
         this.setState({
             ready: true
         });
+    }
+  },
+  onVideoStateChange: function (newState) {
+    console.log('[App] onVideoStateChange - ' + newState);
+    if (newState === 'paused') {
+        this.setState({ soundcloudControl: 'pause' });
+        // this.props.soundcloudControl = 'pause';
+    }
+    if (newState === 'ended') {
+        this.setState({ soundcloudControl: 'stop' });
+        // this.props.soundcloudControl = 'stop';
+    }
+    if (newState === 'playing') {
+        this.setState({ soundcloudControl: 'play' });
+        // this.props.soundcloudControl = 'play';
     }
   },
   render: function() {
@@ -71,8 +61,8 @@ var JimmyVidApp = React.createClass({
     var logoClass = 'logo';
     return (
       <div>
-        <JimmyVid source={this.state.youtubeId} ready={this.state.ready} />
-        <SoundcloudPlayer url={this.state.soundcloudUrl} ready={this.state.ready} />
+        <VideoPlayer onVideoStateChange={this.onVideoStateChange} url={this.state.youtubeUrl} iframeId="ytPlayer" ready={this.state.ready} control={this.state.videoControl} />
+        <SoundcloudPlayer url={this.state.soundcloudUrl} iframeId="scPlayer" ready={this.state.ready} control={this.state.soundcloudControl} />
         <form onSubmit={this.togglePlay} style={formStyle}>
           <input className={inputClass} onChange={this.onYoutubeChange} value={this.state.youtubeUrl} placeholder="YouTube URL" />
           <br />
@@ -88,5 +78,5 @@ var JimmyVidApp = React.createClass({
 
 
 
-React.renderComponent(<JimmyVidApp />, mountNode);
+React.render(<JimmytubeApp />, mountNode);
 

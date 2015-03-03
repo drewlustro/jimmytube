@@ -3,27 +3,21 @@ var React = require('react');
 
 var SoundcloudPlayer = React.createClass({
   getInitialState: function() {
-    return { url: undefined,
-              ready: false };
+    return {
+        url: undefined,
+        ready: false
+    };
   },
-  // tick: function() {
-  //   this.setState({secondsElapsed: this.state.secondsElapsed + 1});
-  // },
   componentDidMount: function() {
-
-
-
-    // this.interval = setInterval(this.tick, 1000);
-  },
-  componentWillUnmount: function() {
-    // clearInterval(this.interval);
+    // force update on initial load
+    this.componentWillReceiveProps(this.props);
   },
   componentWillReceiveProps: function (nextProps) {
 
-    console.log("nextProps");
+    console.log("[SoundCloud] nextProps");
     console.log(nextProps);
     if (nextProps.url !== undefined && nextProps.url !== this.state.url) {
-      var iframe = document.querySelector('#scp');
+      var iframe = document.getElementById(this.props.iframeId);
       var widget = SC.Widget(iframe);
       var url = nextProps.url;
       var that = this;
@@ -45,28 +39,45 @@ var SoundcloudPlayer = React.createClass({
       }
     }
 
-    if (nextProps.ready) {
-      this.play();
+    switch (nextProps.control) {
+        case 'play':
+            this.play();
+            break;
+        case 'ended':
+            this.stop();
+            break;
+        case 'pause':
+            this.pause();
+            break;
+        default:
+            console.log('Unrecognized soundcloud control command "' + nextProps.control + '"');
     }
-
+  },
+  getWidget: function () {
+    var iframe = document.getElementById(this.props.iframeId);
+    var widget = SC.Widget(iframe);
+    if (widget) return widget;
+    return undefined;
   },
   play: function () {
-    var iframe = document.querySelector('#scp');
-    var widget = SC.Widget(iframe);
-    widget.play();
+    this.getWidget().play();
+  },
+  pause: function () {
+    this.getWidget().pause();
+  },
+  stop: function () {
+    var widget = this.getWidget();
+    widget.pause();
+    widget.seekTo(0);
   },
   toggle: function () {
-    var iframe = document.querySelector('#scp');
-    var widget = SC.Widget(iframe);
-    widget.toggle();
+    this.getWidget().toggle();
   },
   render: function() {
-    var wrapperClassName = 'soundcloud-wrapper'
-
+    var wrapperClassName = 'soundcloud-wrapper';
     return (
       <div className={wrapperClassName}>
-
-        <iframe id="scp" src="https://w.soundcloud.com/player/?" width="100%" height="465" scrolling="no" frameborder="no"></iframe>
+        <iframe id={this.props.iframeId} src="https://w.soundcloud.com/player/?" width="100%" height="465" scrolling="no" frameborder="no"></iframe>
       </div>
     );
   }
