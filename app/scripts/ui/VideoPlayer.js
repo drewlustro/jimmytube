@@ -4,23 +4,32 @@ var React = require('react');
 var VideoPlayer = React.createClass({
   getInitialState: function() {
     return {
-        player: null,
-        youtubeId: null,
-        youtubeUrl: null
+        player: undefined,
+        youtubeId: undefined
     };
   },
-  // tick: function() {
-  //   this.setState({secondsElapsed: this.state.secondsElapsed + 1});
-  // },
-  componentDidMount: function() {
-    // force update on initial load
-    this.componentWillReceiveProps(this.props);
+  getDefaultProps: function() {
+    return {
+      url: '',
+      control: 'stop'
+    }
   },
-  componentWillUnmount: function() {
-    // clearInterval(this.interval);
+  shouldComponentUpdate: function (nextProps, nextState) {
+    if (this.props.url !== nextProps.url) {
+      return true;
+    }
+    if (this.props.control !== nextProps.control || nextProps.control === 'play-fullscreen') {
+      return true;
+    }
+    return false;
+  },
+  componentDidMount: function() {
+    if (this.props.url && this.props.url !== '') {
+      this.loadUrl(this.props.url);
+      this.forceUpdate();
+    }
   },
   play: function (useFullscreen) {
-    // this.loadYouTubePlayer(this.state.youtubeId);
 
     if (useFullscreen) {
       var playerElement = document.getElementById(this.props.iframeId);
@@ -31,18 +40,28 @@ var VideoPlayer = React.createClass({
       }
     }
 
-    if (this.player) {
-      this.player.playVideo();
-      this.player.mute();
+    if (this.state.player) {
+      this.state.player.playVideo();
+      this.state.player.mute();
+    }
+  },
+  pause: function () {
+    if (this.state.player) {
+      this.state.player.pauseVideo();
     }
   },
   stop: function () {
-    // var player = document.getElementById(this.state.iframeId);
-    // player.stopVideo();
+    if (this.state.player) {
+      this.state.player.pauseVideo();
+      this.state.player.seekTo(0);
+    }
   },
   componentWillReceiveProps: function (nextProps) {
-    console.log('[VIDEO] receiveProps');
-
+    if (this.props.url != nextProps.url) {
+      this.loadUrl(nextProps.url);
+    }
+  },
+  loadUrl: function (url) {
     // http://stackoverflow.com/questions/3452546/javascript-regex-how-to-get-youtube-video-id-from-url
     function parseYoutube(url) {
         var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
@@ -50,41 +69,60 @@ var VideoPlayer = React.createClass({
         if (match && match[7].length == 11) {
             return match[7];
         }
-        return null;
+        return undefined;
     }
 
-    if (nextProps.url) {
-        var videoId = parseYoutube(nextProps.url);
-        if (videoId !== undefined) {
-            this.setState({youtubeId: videoId,
-                           youtubeUrl: nextProps.url});
-        }
+    var youtubeId = parseYoutube(url);
+    if (youtubeId !== undefined && youtubeId != this.state.youtubeId) {
+        this.loadYouTubePlayer(youtubeId);
     }
-
-    // if (nextProps.ready) {
-    //   console.log('[VIDEO] try play');
-    //   this.play();
-    // }
   },
   componentWillUpdate: function (nextProps, nextState) {
-    if (nextProps.iframeId !== undefined && nextState.youtubeId !== undefined) {
-      this.loadYouTubePlayer(nextState.youtubeId);
+    if (this.props.control != nextProps.control) {
+      // console.log('[VideoPlayer] componentWillUpdate that change...');
+      // console.log('Prev control = "' + this.props.control + '"');
+      // console.log('Next control = "' + nextProps.control + '"');
+      switch (nextProps.control) {
+        case 'play-fullscreen':
+          this.play(true);
+          break;
+        case 'play':
+          this.play();
+          break;
+        case 'pause':
+          this.pause();
+          break;
+        case 'stop':
+          this.stop();
+          break;
+        default:
+      }
     }
   },
   loadYouTubePlayer: function (youtubeId) {
-    this.player = new YT.Player(this.props.iframeId, {
-      videoId: youtubeId,
-      events: {
-        'onReady': this.onPlayerReady,
-        'onStateChange': this.onPlayerStateChange
-      }
-    });
-    console.log(this.player);
-    console.log('[loadYouTubePlayer] new YT.Player -- 1 "' + this.props.iframeId + '" -- id "' + youtubeId + '"');
+    if (this.state.player === undefined || (this.state.player && this.state.player.videoId != youtubeId)) {
+      var player = new YT.Player(this.props.iframeId, {
+        videoId: youtubeId,
+        controls: 0,
+        enablejsapi: 1,
+        playerapiid: this.props.iframeId,
+        showinfo: 0,
+        rel: 0,
+        events: {
+          'onReady': this.onPlayerReady,
+          'onStateChange': this.onPlayerStateChange
+        }
+      });
+
+      this.setState({
+        youtubeId: youtubeId,
+        player: player
+      });
+    }
 
   },
   onPlayerReady: function () {
-    console.log('[onPlayerReady] fired and ready. Waiting for events... "' + this.props.iframeId + '"');
+    console.log('[VideoPlayer] ready.');
   },
   onPlayerStateChange: function (event) {
     if (event.data == YT.PlayerState.PAUSED) {
@@ -97,47 +135,13 @@ var VideoPlayer = React.createClass({
   },
   render: function() {
     var wrapperClassName = 'video-wrapper widescreen';
-    // if (this.state.youtubeId !== null && this.props.iframeId !== null) {
-      return (
-        <div className={wrapperClassName}>
-          <iframe id={this.props.iframeId} src={ 'https://www.youtube.com/embed/' + this.state.youtubeId + '?enablejsapi=1&version=3&playerapiid=' + this.props.iframeId + '&rel=0&showinfo=0'} frameborder="0" allowfullscreen="allowfullscreen"></iframe>
-        </div>
-      );
-    // }
+    return (
+      <div className={wrapperClassName}>
+        <iframe id={this.props.iframeId} src={ 'https://www.youtube.com/embed/' + this.state.youtubeId + '?enablejsapi=1&version=3&playerapiid=' + this.props.iframeId + '&rel=0&showinfo=0&controls=0'} frameBorder="0" allowFullScreen="allowfullscreen"></iframe>
+      </div>
+    );
   }
 });
-
-// var player, iframeId;
-// function onYouTubePlayerReady(playerid, iframe) {
-//   iframeId = iframe;
-//   player = new YT.Player(iframeId, {
-//     videoId: playerid,
-//     events: {
-//       'onReady': onPlayerReady,
-//       'onStateChange': onPlayerStateChange
-//     }
-//   });
-//   console.log('[onYouTubePlayerReady] new YT.Player -- 1 "' + iframeId + '"');
-//   console.log(player);
-
-// }
-
-// function onPlayerReady() {
-//   console.log('[onPlayerReady] fired. trying playVideo() -- 2 "' + iframeId + '"');
-//   player.playVideo();
-//   player.mute();
-//   var playerElement = document.getElementById(iframeId);
-//   var requestFullScreen = playerElement.requestFullScreen || playerElement.mozRequestFullScreen || playerElement.webkitRequestFullScreen;
-//   if (requestFullScreen) {
-//     requestFullScreen.bind(playerElement)();
-//   }
-// }
-
-// function onPlayerStateChange(event) {
-//   if (event.data == YT.PlayerState.PAUSED) {
-
-//   }
-// }
 
 
 module.exports = VideoPlayer;
