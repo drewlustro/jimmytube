@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+'use strict';
 
 var React = window.React = require('react'),
     VideoPlayer = require('./ui/VideoPlayer'),
