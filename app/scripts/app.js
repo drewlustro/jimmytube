@@ -5,8 +5,8 @@ var React = window.React = require('react'),
     SoundcloudPlayer = require('./ui/SoundcloudPlayer'),
     mountNode = document.getElementById("app");
 
-// var BASE_URL = 'http://localhost:9000/';
-var BASE_URL = 'http://jimmytube.maxrelax.co/';
+var BASE_URL = 'http://localhost:3000/';
+//var BASE_URL = 'http://jimmytube.maxrelax.co/';
 
 // Quick & dirty GET dictionary for preloaded video/soundcloud
 // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/21152762#21152762
@@ -21,7 +21,7 @@ console.log(GET_DICT);
 
 var defaults = {
     videoUrl: (GET_DICT.v ? GET_DICT.v : 'https://www.youtube.com/watch?v=SfZWFDs0LxA'),
-    soundcloudUrl: (GET_DICT.s ? GET_DICT.s : 'https://soundcloud.com/itsmeelan/cassie-me-and-u-elan-remix')
+    soundcloudUrl: (GET_DICT.s ? GET_DICT.s : 'https://soundcloud.com/drewlustro/outdoor-pool-party-rave')
 };
 
 var ShareLink = React.createClass({
@@ -159,39 +159,38 @@ var JimmytubeApp = React.createClass({
     }
   },
   render: function() {
-    var formStyle = {
-        position: 'absolute',
-        zIndex: 10,
-        top: '10px',
-        left: '10px'
-
-    };
-    var inputClass = 'form-control input-sm';
+    var formClass = 'remote-form';
+    var inputClass = 'form-control form-input input-sm';
     var buttonClass = 'btn btn-default';
     var logoClass = 'logo';
+    var appClass = 'app-dialog';
+    var clearClass = 'clear';
+    var videoShadeClass = 'video-shade';
     return (
       <div>
         <VideoPlayer onVideoStateChange={this.onVideoStateChange} url={this.state.videoUrl} iframeId="ytPlayer" control={this.state.videoControl} />
         <SoundcloudPlayer onSoundStateChange={this.onSoundStateChange} url={this.state.soundcloudUrl} iframeId="scPlayer" control={this.state.soundcloudControl} />
-        <form onSubmit={this.playFullscreen} style={formStyle}>
-          <strong>YouTube URL:</strong>
+        <form onSubmit={this.playFullscreen} className={formClass}>
+          <label>YouTube URL</label>
           <input className={inputClass} onChange={this.onYoutubeChange} value={this.state.videoUrl} placeholder="YouTube URL" />
-          <br />
+          <br className={clearClass} />
 
-          <strong>Soundcloud URL:</strong>
+          <label>SoundCloud URL</label>
           <input className={inputClass} onChange={this.onSoundcloudChange} value={this.state.soundcloudUrl} placeholder="SoundCloud URL" />
-          <br />
-          <button className={buttonClass}>&#9654; Play Together</button>
-          <br /><br /><br />
-          <strong>Share Link:</strong>
-          <ShareLink videoUrl={this.state.videoUrl} soundcloudUrl={this.state.soundcloudUrl} />
+          <br className={clearClass} />
+          <button className={buttonClass}>Play</button>
+
         </form>
         <aside className={logoClass}><h1>jimmytube</h1></aside>
+        <aside className={videoShadeClass}></aside>
       </div>
     );
   }
 });
 
+// <br /><br /><br />
+// <strong>Share Link:</strong>
+// <ShareLink videoUrl={this.state.videoUrl} soundcloudUrl={this.state.soundcloudUrl} />
 
 React.render(<JimmytubeApp />, mountNode);
 

@@ -107,7 +107,7 @@ var SoundcloudPlayer = React.createClass({
     var wrapperClassName = 'soundcloud-wrapper';
     return (
       <div className={wrapperClassName}>
-        <iframe id={this.props.iframeId} src="https://w.soundcloud.com/player/?" width="100%" height="465" scrolling="no" frameBorder="no"></iframe>
+        <iframe id={this.props.iframeId} src="https://w.soundcloud.com/player/?" width="100%" scrolling="no" frameBorder="no"></iframe>
       </div>
     );
   }

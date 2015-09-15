@@ -13,9 +13,7 @@ var $ = require('gulp-load-plugins')();
 var browserify = require('browserify');
 var watchify = require('watchify');
 var source = require('vinyl-source-stream'),
-
     sourceFile = './app/scripts/app.js',
-
     destFolder = './dist/scripts',
     destFileName = 'app.js';
 
@@ -187,7 +185,12 @@ gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
         // Note: this uses an unsigned certificate which on first access
         //       will present a certificate warning in the browser.
         // https: true,
-        server: ['dist', 'app']
+        server: {
+            baseDir: ['dist', 'app', 'bower_components'],
+            routes: {
+                "/bower_components": "./app/bower_components"
+            }
+        }
     });
 
     // Watch .json files
@@ -196,12 +199,11 @@ gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
     // Watch .html files
     gulp.watch('app/*.html', ['html']);
 
+    // Watch Sass Styles
     gulp.watch(['app/styles/**/*.{sass,scss}', 'app/styles/**/*.css'], ['styles', 'scripts', reload]);
 
-
-        // Watch .jade files
-        gulp.watch('app/template/**/*.jade', ['jade', 'html', reload]);
-
+    // Watch .jade files
+    gulp.watch('app/template/**/*.jade', ['jade', 'html', reload]);
 
     // Watch image files
     gulp.watch('app/images/**/*', reload);

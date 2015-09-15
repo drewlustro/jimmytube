@@ -21,10 +21,15 @@
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <div class="body-shade"></div>
+        <div class="maxrelax-logo"><a href="http://maxrelax.co" target="_blank" alt="Maxrelax Logo"><img src="images/logo/logo-white.png"></a></div>
+
+        <header class="jimmytube-logo">Jimmytube™</header>
 
         <main id="app"> </main>
 
 
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -38,6 +43,10 @@
             tag.src = "scripts/app.js";
             var firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            var tagMainVanilla = document.createElement('script');
+            tagMainVanilla.src = "scripts/main.js";
+            firstScriptTag.parentNode.insertBefore(tagMainVanilla, firstScriptTag);
         </script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
